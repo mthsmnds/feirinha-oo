@@ -52,12 +52,21 @@ public class ItemController {
     }
 
     @PutMapping("/{id}")
-    public String updateItem(@PathVariable("id") Long id, @RequestBody String body){
-        return "Edição do item: " + id + body;
+    public void updateItem(@PathVariable("id") Long id, @RequestBody @Valid ItemDTO body){
+        Optional<ItemModel> item = itemRepository.findById(id);
+        
+        if(!item.isPresent()){
+            //return Optional.empty();
+        }
+
+        ItemModel newItem = new ItemModel(body);
+        newItem.setId(id);
+        itemRepository.save(newItem);
+
     }
 
     @DeleteMapping("/{id}")
-    public String deleteItem(@PathVariable("id") Long id){
-        return "Deletando item " + id;
+    public void deleteItem(@PathVariable("id") Long id){
+        itemRepository.deleteById(id);
     }
 }
