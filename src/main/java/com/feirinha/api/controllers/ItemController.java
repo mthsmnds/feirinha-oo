@@ -48,8 +48,12 @@ public class ItemController {
 
     @PostMapping()
     public ResponseEntity<Object> postItem(@RequestBody @Valid ItemDTO body){
-        ItemModel item = itemService.postItem(body);
-        return ResponseEntity.status(HttpStatus.CREATED).body(item);
+        Optional<ItemModel> item = itemService.postItem(body);
+
+        if(!item.isPresent()){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(("Uma receita com esse nome já existe"));
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(item.get());
     }
 
     @PutMapping("/{id}")

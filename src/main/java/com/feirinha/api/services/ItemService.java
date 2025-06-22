@@ -33,10 +33,15 @@ public class ItemService {
         }
     }
 
-    public ItemModel postItem(ItemDTO body){
+    public Optional<ItemModel> postItem(ItemDTO body){
+
+        if(itemRepository.existsByName(body.getName())){
+            return Optional.empty();
+        }
+
         ItemModel item = new ItemModel(body);
         itemRepository.save(item);
-        return item;
+        return Optional.of(item);
     }
 
     public Optional<ItemModel> updateItem(Long id, ItemDTO body){
@@ -47,6 +52,7 @@ public class ItemService {
         }
 
         ItemModel newItem = new ItemModel(body);
+        
         newItem.setId(id);
         itemRepository.save(newItem);
         return Optional.of(newItem);
