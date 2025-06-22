@@ -13,8 +13,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.feirinha.api.dtos.ItemDTO;
 import com.feirinha.api.models.ItemModel;
 import com.feirinha.api.repositories.ItemRepository;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/items")
@@ -43,8 +46,9 @@ public class ItemController {
     }
 
     @PostMapping()
-    public String postItem(@RequestBody String body){
-        return "Receita Criada: " + body;
+    public void postItem(@RequestBody @Valid ItemDTO body){
+        ItemModel item = new ItemModel(body);
+        itemRepository.save(item);
     }
 
     @PutMapping("/{id}")
