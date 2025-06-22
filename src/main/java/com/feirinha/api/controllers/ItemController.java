@@ -1,11 +1,8 @@
 package com.feirinha.api.controllers;
 
-import java.lang.classfile.ClassFile.Option;
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.feirinha.api.dtos.ItemDTO;
 import com.feirinha.api.models.ItemModel;
-import com.feirinha.api.repositories.ItemRepository;
+import com.feirinha.api.services.ItemService;
 
 import jakarta.validation.Valid;
 
@@ -26,21 +23,21 @@ import jakarta.validation.Valid;
 @RequestMapping("/items")
 public class ItemController {
 
-    final ItemRepository itemRepository;
+    final ItemService itemService ;
 
-    ItemController(ItemRepository itemRepository){
-        this.itemRepository = itemRepository;
+    ItemController(ItemService itemService){
+        this.itemService = itemService;
     }
 
     @GetMapping()
     public ResponseEntity<Object> getItems(){
-        return ResponseEntity.status(HttpStatus.OK).body(itemRepository.findAll())
+        return ResponseEntity.status(HttpStatus.OK).body(itemService.getItems())
         ;
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getItemId(@PathVariable("id") Long id){
-        Optional<ItemModel> item = itemRepository.findById(id);
+        Optional<ItemModel> item = itemService.getItemId(id);
         
         if(!item.isPresent()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Item com este ID não encontrado");
@@ -51,28 +48,24 @@ public class ItemController {
 
     @PostMapping()
     public ResponseEntity<Object> postItem(@RequestBody @Valid ItemDTO body){
-        ItemModel item = new ItemModel(body);
-        itemRepository.save(item);
-        return ResponseEntity.status(HttpStatus.CREATED).body(body);
+        ItemModel item = itemService.postItem(body);
+        return ResponseEntity.status(HttpStatus.CREATED).body(item);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateItem(@PathVariable("id") Long id, @RequestBody @Valid ItemDTO body){
-        Optional<ItemModel> item = itemRepository.findById(id);
+        Optional<ItemModel> item = itemService.updateItem(id, body);
         
         if(!item.isPresent()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
-        ItemModel newItem = new ItemModel(body);
-        newItem.setId(id);
-        itemRepository.save(newItem);
-        return ResponseEntity.status(HttpStatus.OK).body(newItem);
+        return ResponseEntity.status(HttpStatus.OK).body(item.get());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteItem(@PathVariable("id") Long id){
-        itemRepository.deleteById(id);
+        itemService.deleteItem(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
